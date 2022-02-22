@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 from cmath import log
 from collections import defaultdict
-import os
+from os.path import dirname
 import re
-from  functools import reduce 
+from functools import reduce 
 
 r = re.compile("(^|[^a-zA-Z0-9_\n])([a-zA-Z_]+)", re.MULTILINE)
 def tokenize(s):
@@ -33,7 +33,7 @@ class Trainer:
         with open(self.train_data_location, 'r') as lst:
             for line in lst:
                 [path,answer] = line.split(" ")
-                path = f"{os.path.dirname(self.train_data_location)}/{path}"
+                path = f"{dirname(self.train_data_location)}/{path}"
                 self.Pc[answer] += 1
                 with open(path, 'r') as doc:
                     docStr = doc.read()
@@ -53,7 +53,7 @@ class Tester:
         self.data = defaultdict(lambda : "Unkown")
         with open(self.input_file_name, 'r') as lst:
             for path in lst: 
-                self._test(f"{os.path.dirname(self.input_file_name)}/{path[:-1]}",path[:-1])
+                self._test(f"{dirname(self.input_file_name)}/{path[:-1]}",path[:-1])
 
         if output_file_name is None:
             print("Insert labled output file")
@@ -76,4 +76,5 @@ class Tester:
 
  
 if __name__ == "__main__":
-    t = Tester("./TC_provided/corpus1_test.list","./out.labels", Trainer("./TC_provided/corpus1_train.labels")); 
+    # t = Tester("./TC_provided/corpus1_test.list","./out.labels", Trainer("TC_provided/corpus1_train.labels")); 
+    Tester(); 
