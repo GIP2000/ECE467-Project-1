@@ -3,12 +3,13 @@ from cmath import log
 from collections import defaultdict
 import os
 import re
+from  functools import reduce 
 
 r = re.compile("(^|[^a-zA-Z0-9_\n])([a-zA-Z_]+)", re.MULTILINE)
-def tokenize(s): # TODO better tokenization
+def tokenize(s):
     global r
     m = r.findall(s)
-    return [mi for _,mi in m] 
+    return [mi for _,mi in m]
 
 
 class Trainer: 
@@ -52,7 +53,7 @@ class Tester:
         self.data = defaultdict(lambda : "Unkown")
         with open(self.input_file_name, 'r') as lst:
             for path in lst: 
-                self._test(f"{os.path.dirname(self.input_file_name)}/{path[:-1]}")
+                self._test(f"{os.path.dirname(self.input_file_name)}/{path[:-1]}",path[:-1])
 
         if output_file_name is None:
             print("Insert labled output file")
@@ -62,16 +63,11 @@ class Tester:
         self._output()
     
 
-    def _test(self,path):
+    def _test(self,path,rpath):
         with open(path, 'r') as doc: 
             ts = tokenize(doc.read())
-            args = defaultdict(lambda : 0)
-            for c,val in self.trainer.Pc.items():
-                val = 0
-                for t in ts:
-                    val += log(self.trainer.Ptgc[t][c] + 1)
-                args[c] = log(val) + val
-            self.data[path] = max(args)
+            args = {c:log(val) + reduce(lambda y,t:y+log(self.trainer.Ptgc[t][c] + 1) ,ts,0) for (c,val) in self.trainer.Pc.items()}
+            self.data[rpath] = reduce(lambda acc,x: x if args[x].real > args[acc].real else acc ,args)
     
     def _output(self):
         with open(self.output_file_name, 'w') as output:
