@@ -5,9 +5,8 @@ from os.path import dirname
 import re
 from functools import reduce 
 
-r = re.compile("(^|[^a-zA-Z0-9_\n])([a-zA-Z_]+)", re.MULTILINE)
 def tokenize(s):
-    global r
+    r = re.compile("(^|[^a-zA-Z0-9_\n])([a-zA-Z_]+)", re.MULTILINE)
     m = r.findall(s)
     return [mi for _,mi in m]
 
