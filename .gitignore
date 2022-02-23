@@ -130,4 +130,5 @@ dmypy.json
 
 *.tar
 TC_provided/
-out*.labels
+*.labels
+*.list

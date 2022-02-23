@@ -47,8 +47,11 @@ class Trainer:
 
 class Tester: 
 
-    def __init__(self,input_file_name=None, output_file_name=None, trainer=None):
+    def __init__(self,input_file_name=None, output_file_name=None, trainer=None, batch_prediction=True):
         self.trainer = trainer if trainer is not None else Trainer()
+        if not batch_prediction: 
+            return
+
         if input_file_name is None:
             print("Insert unlabled input file")
             self.input_file_name = input()
@@ -56,9 +59,7 @@ class Tester:
             self.input_file_name = input_file_name
 
         self.data = defaultdict(lambda : "Unkown")
-        with open(self.input_file_name, 'r') as lst:
-            for path in lst: 
-                self._test(f"{dirname(self.input_file_name)}/{path[:-1]}",path[:-1])
+        self._test()
 
         if output_file_name is None:
             print("Insert labled output file")
@@ -67,12 +68,19 @@ class Tester:
             self.output_file_name = output_file_name
         self._output()
     
+    def _test(self):
+        with open(self.input_file_name, 'r') as lst:
+            for path in lst: 
+                with open(f"{dirname(self.input_file_name)}/{path[:-1]}", 'r') as doc: 
+                    self.predict(doc.read(),path[:-1])
+    
+    def predict(self,str,name):
+        assert name not in self.data
+        ts = tokenize(str)
+        args = {c:log(val/self.trainer.doc_count) + reduce(lambda y,t:y+log(self.trainer.Ptgc[t][c]/val) ,ts,0) for (c,val) in self.trainer.Pc.items()}
+        self.data[name] = reduce(lambda acc,x: x if args[x].real > args[acc].real else acc ,args)
+        return self.data[name]
 
-    def _test(self,path,rpath):
-        with open(path, 'r') as doc: 
-            ts = tokenize(doc.read())
-            args = {c:log(val/self.trainer.doc_count) + reduce(lambda y,t:y+log(self.trainer.Ptgc[t][c]/val) ,ts,0) for (c,val) in self.trainer.Pc.items()}
-            self.data[rpath] = reduce(lambda acc,x: x if args[x].real > args[acc].real else acc ,args)
     
     def _output(self):
         with open(self.output_file_name, 'w') as output:
@@ -81,5 +89,6 @@ class Tester:
 
  
 if __name__ == "__main__":
-    t = Tester("./TC_provided/corpus1_test.list","./out.labels", Trainer("TC_provided/corpus1_train.labels")); 
-    # Tester(); 
+    # t = Tester("./TC_provided/corpus1_test.list","./out.labels", Trainer("TC_provided/corpus1_train.labels")); 
+    t = Tester("./TC_provided/new_test.list","./out.labels", Trainer("TC_provided/new_train.labels")); 
+    # Tester()
