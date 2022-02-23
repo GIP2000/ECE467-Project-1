@@ -22,15 +22,19 @@ class Trainer:
             print("input training data location")
             self.train_data_location = input()
 
+        self.smoothing_factor = .07
         self.Pc = defaultdict(lambda : 0)
-        self.Ptgc = defaultdict(lambda : defaultdict(lambda : 0))
+        self.Ptgc = defaultdict(lambda : defaultdict(lambda : self.smoothing_factor))
+        self.unique_tokens = set()
         self._train(); 
         
 
     def _train(self):
         # build Pc and Ptgc
         with open(self.train_data_location, 'r') as lst:
+            self.doc_count = 0
             for line in lst:
+                self.doc_count+=1
                 [path,answer] = line.split(" ")
                 path = f"{dirname(self.train_data_location)}/{path}"
                 self.Pc[answer] += 1
@@ -38,7 +42,9 @@ class Trainer:
                     docStr = doc.read()
                     for w in tokenize(docStr):  
                         self.Ptgc[w][answer] += 1
-            
+                        self.unique_tokens.add(w)
+
+
 class Tester: 
 
     def __init__(self,input_file_name=None, output_file_name=None, trainer=None):
@@ -65,7 +71,7 @@ class Tester:
     def _test(self,path,rpath):
         with open(path, 'r') as doc: 
             ts = tokenize(doc.read())
-            args = {c:log(val) + reduce(lambda y,t:y+log(self.trainer.Ptgc[t][c] + 1) ,ts,0) for (c,val) in self.trainer.Pc.items()}
+            args = {c:log(val/self.trainer.doc_count) + reduce(lambda y,t:y+log(self.trainer.Ptgc[t][c]/val) ,ts,0) for (c,val) in self.trainer.Pc.items()}
             self.data[rpath] = reduce(lambda acc,x: x if args[x].real > args[acc].real else acc ,args)
     
     def _output(self):
@@ -75,5 +81,5 @@ class Tester:
 
  
 if __name__ == "__main__":
-    # t = Tester("./TC_provided/corpus1_test.list","./out.labels", Trainer("TC_provided/corpus1_train.labels")); 
-    Tester(); 
+    t = Tester("./TC_provided/corpus1_test.list","./out.labels", Trainer("TC_provided/corpus1_train.labels")); 
+    # Tester(); 
