@@ -78,7 +78,7 @@ class Tester:
         assert name not in self.data
         ts = tokenize(str)
         args = {c:log(val/self.trainer.doc_count) + reduce(lambda y,t:y+log(self.trainer.Ptgc[t][c]/val) ,ts,0) for (c,val) in self.trainer.Pc.items()}
-        self.data[name] = reduce(lambda acc,x: x if args[x].real > args[acc].real else acc ,args)
+        self.data[name] = reduce(lambda acc,x: x if args[x].real > args[acc].real else acc ,args) # get max arg c
         return self.data[name]
 
     
