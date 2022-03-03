@@ -2,13 +2,23 @@
 from cmath import log
 from collections import defaultdict
 from os.path import dirname
-import re
+from re import compile as re_compile, MULTILINE as RMULTILINE
 from functools import reduce 
 
 def tokenize(s):
-    r = re.compile("(^|[^a-zA-Z0-9_\n])([a-zA-Z_]+)", re.MULTILINE)
+    r = re_compile("(^|[^a-zA-Z0-9_\n])([a-zA-Z_]+)", RMULTILINE)
     m = r.findall(s)
     return [mi for _,mi in m]
+
+def validate(filename,p_data):
+    correct = 0
+    incorrect = 0
+    with open(filename, 'r') as file:
+        for line in file: 
+            [name,value] = line.split(" ")
+            correct += (p_data[name] == value)
+            incorrect += (p_data[name] != value)
+    return (correct/(correct+incorrect))
 
 
 class Trainer: 
@@ -22,10 +32,10 @@ class Trainer:
             print("input training data location")
             self.train_data_location = input()
 
-        self.smoothing_factor = .07
+        # self.smoothing_factor = smoothing_factor
         self.Pc = defaultdict(lambda : 0)
-        self.Ptgc = defaultdict(lambda : defaultdict(lambda : self.smoothing_factor))
-        self.unique_tokens = set()
+        self.Ptgc = defaultdict(lambda : defaultdict(lambda : 0))
+        # self.unique_tokens = set()
         self._train(); 
         
 
@@ -42,12 +52,14 @@ class Trainer:
                     docStr = doc.read()
                     for w in tokenize(docStr):  
                         self.Ptgc[w][answer] += 1
-                        self.unique_tokens.add(w)
+                        # self.unique_tokens.add(w)
 
 
 class Tester: 
 
-    def __init__(self,input_file_name=None, output_file_name=None, trainer=None, batch_prediction=True):
+    def __init__(self,input_file_name=None, output_file_name=None, trainer=None, batch_prediction=True, outputToFile=True, sf = .08):
+        self.sf = sf
+        print(self.sf)
         self.trainer = trainer if trainer is not None else Trainer()
         if not batch_prediction: 
             return
@@ -66,7 +78,8 @@ class Tester:
             self.output_file_name = input()
         else: 
             self.output_file_name = output_file_name
-        self._output()
+        if outputToFile: 
+            self._output()
     
     def _test(self):
         with open(self.input_file_name, 'r') as lst:
@@ -77,7 +90,7 @@ class Tester:
     def predict(self,str,name):
         assert name not in self.data
         ts = tokenize(str)
-        args = {c:log(val/self.trainer.doc_count) + reduce(lambda y,t:y+log(self.trainer.Ptgc[t][c]/val) ,ts,0) for (c,val) in self.trainer.Pc.items()}
+        args = {c:log(d_in_cat/self.trainer.doc_count) + reduce(lambda acc,t:acc+log(((self.trainer.Ptgc[t][c] + self.sf)/(d_in_cat + (len(self.trainer.Pc)*self.sf)))) ,ts,0) for (c,d_in_cat) in self.trainer.Pc.items()}
         self.data[name] = reduce(lambda acc,x: x if args[x].real > args[acc].real else acc ,args) # get max arg c
         return self.data[name]
 
@@ -89,6 +102,7 @@ class Tester:
 
  
 if __name__ == "__main__":
-    # t = Tester("./TC_provided/corpus1_test.list","./out.labels", Trainer("TC_provided/corpus1_train.labels")); 
-    t = Tester("./TC_provided/new_test.list","./out.labels", Trainer("TC_provided/new_train.labels")); 
-    # Tester()
+    t = Tester("./TC_provided/corpus1_test.list","./out.labels", Trainer("TC_provided/corpus1_train.labels"), sf=.07); 
+    # t = Tester("./TC_provided/new_test.list","./out.labels", Trainer("TC_provided/new_train.labels")); 
+    # t = Tester()
+    print(validate("./TC_provided/corpus1_test.labels", t.data))
