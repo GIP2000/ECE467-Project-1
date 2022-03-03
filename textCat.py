@@ -49,9 +49,12 @@ class Trainer:
                 path = f"{dirname(self.train_data_location)}/{path}"
                 self.Pc[answer] += 1
                 with open(path, 'r') as doc:
+                    used_words = []
                     docStr = doc.read()
                     for w in tokenize(docStr):  
-                        self.Ptgc[w][answer] += 1
+                        if w not in used_words:
+                            self.Ptgc[w][answer] += 1
+                            used_words.append(w)
                         # self.unique_tokens.add(w)
 
 
@@ -102,7 +105,7 @@ class Tester:
 
  
 if __name__ == "__main__":
-    t = Tester("./TC_provided/corpus1_test.list","./out.labels", Trainer("TC_provided/corpus1_train.labels"), sf=.07); 
-    # t = Tester("./TC_provided/new_test.list","./out.labels", Trainer("TC_provided/new_train.labels")); 
+    # t = Tester("./TC_provided/corpus1_test.list","./out.labels", Trainer("TC_provided/corpus1_train.labels"), sf=.115); 
+    t = Tester("./TC_provided/new_test.list","./out.labels", Trainer("TC_provided/new_train.labels"),sf=.037); 
     # t = Tester()
-    print(validate("./TC_provided/corpus1_test.labels", t.data))
+    print(validate("./TC_provided/new_test.labels", t.data))

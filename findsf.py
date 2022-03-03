@@ -21,9 +21,9 @@ if __name__ == "__main__":
     step = .001
     i = step
     vals = []
-    while i < .1:
+    train = Trainer(inputFile)
+    while i < .15:
         print(f"starting with smoothing_factor = {i}")
-        train = Trainer(inputFile)
         test = Tester(testFile,"./out.txt",train,True,False,i)
         vals.append(validate(validatorFile,test.data))
         print(f"value for smf {i} = {vals[-1]}")
@@ -40,8 +40,8 @@ if __name__ == "__main__":
 
 
     # .082 corpus 1 
-    # .037 corpus 2 
-    # .062 corpus 3 
+    # .001 corpus 2 
+    # .037 corpus 3 
 
 
 
