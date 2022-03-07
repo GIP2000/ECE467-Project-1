@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     # .082 corpus 1 
     # .001 corpus 2 .04
-    # .037 corpus 3 
+    # .037 corpus 3 .014
 
 
 
