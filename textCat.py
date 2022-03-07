@@ -10,17 +10,6 @@ def tokenize(s):
     m = r.findall(s)
     return [mi for _,mi in m]
 
-def validate(filename,p_data):
-    correct = 0
-    incorrect = 0
-    with open(filename, 'r') as file:
-        for line in file: 
-            [name,value] = line.split(" ")
-            correct += (p_data[name] == value)
-            incorrect += (p_data[name] != value)
-    return (correct/(correct+incorrect))
-
-
 class Trainer: 
     '''
         Naive Bayse trainer 
@@ -60,12 +49,23 @@ class Trainer:
 
 class Tester: 
 
-    def __init__(self,input_file_name=None, output_file_name=None, trainer=None, batch_prediction=True, outputToFile=True, sf = .08):
-        self.sf = sf
-        # print(self.sf)
+    def __init__(self,input_file_name=None, output_file_name=None, trainer=None, batch_prediction=True, outputToFile=True, sf = None):
         self.trainer = trainer if trainer is not None else Trainer()
         if not batch_prediction: 
             return
+        
+        if sf is not None:
+            self.sf = sf
+        else:
+            if "Pol\n" in self.trainer.Pc or "Pol" in self.trainer.Pc :
+                self.sf = .115
+            elif "I\n" in self.trainer.Pc or "I" in self.trainer.Pc :
+                self.sf = .001
+            elif "Wor\n" in self.trainer.Pc or "Wor" in self.trainer.Pc :
+                self.sf = .037
+            else:
+                self.sf = .082
+
 
         if input_file_name is None:
             print("Insert unlabled input file")
@@ -105,7 +105,4 @@ class Tester:
 
  
 if __name__ == "__main__":
-    # t = Tester("./TC_provided/corpus1_test.list","./out.labels", Trainer("TC_provided/corpus1_train.labels"), sf=.115); 
-    t = Tester("./TC_provided/new_test.list","./out.labels", Trainer("TC_provided/new_train.labels"),sf=.001); 
-    # t = Tester()
-    print(validate("./TC_provided/new_test.labels", t.data))
+    t = Tester()
