@@ -62,7 +62,7 @@ class Tester:
 
     def __init__(self,input_file_name=None, output_file_name=None, trainer=None, batch_prediction=True, outputToFile=True, sf = .08):
         self.sf = sf
-        print(self.sf)
+        # print(self.sf)
         self.trainer = trainer if trainer is not None else Trainer()
         if not batch_prediction: 
             return
@@ -106,6 +106,6 @@ class Tester:
  
 if __name__ == "__main__":
     # t = Tester("./TC_provided/corpus1_test.list","./out.labels", Trainer("TC_provided/corpus1_train.labels"), sf=.115); 
-    t = Tester("./TC_provided/new_test.list","./out.labels", Trainer("TC_provided/new_train.labels"),sf=.037); 
+    t = Tester("./TC_provided/new_test.list","./out.labels", Trainer("TC_provided/new_train.labels"),sf=.001); 
     # t = Tester()
     print(validate("./TC_provided/new_test.labels", t.data))
