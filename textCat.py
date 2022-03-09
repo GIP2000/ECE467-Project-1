@@ -2,13 +2,17 @@
 from cmath import log
 from collections import defaultdict
 from os.path import dirname
-from re import compile as re_compile, MULTILINE as RMULTILINE
 from functools import reduce 
+from nltk import download as nltk_download
+nltk_download("stopwords")
+nltk_download("punkt")
+from nltk.corpus import stopwords 
+from nltk.tokenize import word_tokenize
+
+stop_words = set(stopwords.words("english"))
 
 def tokenize(s):
-    r = re_compile("(^|[^a-zA-Z0-9_\n])([a-zA-Z_]+)", RMULTILINE)
-    m = r.findall(s)
-    return [mi for _,mi in m]
+    return [w for w in word_tokenize(s) if (w not in stop_words and w.isalpha())]
 
 class Trainer: 
     '''
@@ -58,11 +62,11 @@ class Tester:
             self.sf = sf
         else:
             if "Pol\n" in self.trainer.Pc or "Pol" in self.trainer.Pc :
-                self.sf = .115
+                self.sf = .097
             elif "I\n" in self.trainer.Pc or "I" in self.trainer.Pc :
-                self.sf = .001
+                self.sf = .0118
             elif "Wor\n" in self.trainer.Pc or "Wor" in self.trainer.Pc :
-                self.sf = .037
+                self.sf = .062
             else:
                 self.sf = .082
 
