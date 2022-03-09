@@ -25,10 +25,8 @@ class Trainer:
             print("input training data location")
             self.train_data_location = input()
 
-        # self.smoothing_factor = smoothing_factor
         self.Pc = defaultdict(lambda : 0)
         self.Ptgc = defaultdict(lambda : defaultdict(lambda : 0))
-        # self.unique_tokens = set()
         self._train(); 
         
 
@@ -48,16 +46,19 @@ class Trainer:
                         if w not in used_words:
                             self.Ptgc[w][answer] += 1
                             used_words.append(w)
-                        # self.unique_tokens.add(w)
 
 
 class Tester: 
+    '''
+        Naive Bayes Tester
+    '''
 
     def __init__(self,input_file_name=None, output_file_name=None, trainer=None, batch_prediction=True, outputToFile=True, sf = None):
         self.trainer = trainer if trainer is not None else Trainer()
         if not batch_prediction: 
             return
         
+        # Pick the smoothing factor
         if sf is not None:
             self.sf = sf
         else:
